@@ -1,0 +1,141 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * QandA plugin for Craft CMS 3.x
+ *
+ * QandA index.twig
+ *
+ * @author    Kurious Agency
+ * @copyright Copyright (c) 2019 Kurious Agency
+ * @link      https://kurious.agency
+ * @package   QandA
+ * @since     0.0.1
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set title = "Q&A: "|t('qanda')~ question.id %}
+
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'qanda' %}
+
+{% block actionButton %}
+	<div class="btngroup">
+        <input type="submit" class="btn submit"
+               value="{{ 'Save'|t('qada') }}">
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            {% if question.id %}
+                <hr>
+                <ul>
+                    <li>
+                        <a class="formsubmit error"
+                           data-action="qanda/default/delete"
+                           data-confirm="{{ 'Are you sure you want to delete this question?'|t('qanda') }}"
+                           data-redirect="{{ 'qanda'|hash }}">
+                            {{ 'Delete'|t('qanda') }}
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block content %}
+	<input type="hidden" name="action" value="qanda/default/save">
+	{% if question.id %}
+		<input type="hidden" name="id" value="{{ question.id }}">
+	{% endif %}
+	{{ redirectInput('qanda') }}
+	{{ csrfInput() }}
+
+	{{ forms.textareaField({
+		label: "Question"|t('qanda'),
+		id: 'question',
+		name: 'question',
+		value: question.question,
+		rows: 5,
+		errors: question.getErrors('question'),
+		required: true
+	}) }}
+
+	{{ forms.textareaField({
+		label: "Answer"|t('qanda'),
+		id: 'answer',
+		name: 'answer',
+		value: question.answer,
+		rows: 5,
+		errors: question.getErrors('answer'),
+	}) }}
+	
+{% endblock %}
+
+{% block details %}
+<div class="meta">
+
+	{{ forms.dateTimeField({
+        label: 'Date Created'|t('qanda'),
+        id: 'dateCreated',
+        name: 'dateCreated',
+        value: question.dateCreated,
+        errors: question.getErrors('dateCreated')
+    }) }}
+
+    {{ forms.dateTimeField({
+        label: 'Date Updated'|t('qanda'),
+        id: 'dateUpdated',
+        name: 'dateUpdated',
+        value: question.dateUpdated,
+        errors: question.getErrors('dateUpdated')
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled"|t('qanda'),
+        id: 'enabled',
+        name: 'enabled',
+        on: question.enabled
+    }) }}
+
+	{{ forms.elementSelectField({
+        id: 'productId',
+        label: 'Product',
+        name: 'productId',
+        elementType: 'craft\\commerce\\elements\\Product',
+        elements: [question.product] ?? null,
+        limit: 1,
+        instructions: 'Choose a product'
+    }) }}
+
+	{{ forms.textField({
+		label: "Email"|t('qanda'),
+		id: 'email',
+		name: 'email',
+		value: question.email ? question.email : currentUser.email,
+		errors: question.getErrors('email'),
+		readonly: question.customerId ? true : false,
+		required: true,
+	}) }}
+	{{ forms.textField({
+		label: "Firstname"|t('qanda'),
+		id: 'firstName',
+		name: 'firstName',
+		value: question.firstName ? question.firstName : currentUser.firstName,
+		errors: question.getErrors('firstName'),
+		readonly: question.customerId ? true : false,
+		required: true,
+	}) }}
+	{{ forms.textField({
+		label: "Lastname"|t('qanda'),
+		id: 'lastName',
+		name: 'lastName',
+		value: question.lastName ? question.lastName : currentUser.lastName,
+		errors: question.getErrors('lastName'),
+		readonly: question.customerId ? true : false,
+		required: true,
+	}) }}
+</div>
+{% endblock %}

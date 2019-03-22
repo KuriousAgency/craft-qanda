@@ -1,0 +1,20 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * QandA plugin for Craft CMS
+ *
+ * QandAWidget Widget Body
+ *
+ * @author    Kurious Agency
+ * @copyright Copyright (c) 2019 Kurious Agency
+ * @link      https://kurious.agency
+ * @package   QandA
+ * @since     0.0.1
+ */
+#}
+
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@kuriousagency/qanda/assetbundles/qandawidgetwidget/dist', true) ~ '/img/QandAWidget-icon.svg' %}
+
+<img src="{{ iconUrl }}" height="64" width="64" />
+
+<p>{{ message }}</p>

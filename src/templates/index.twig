@@ -1,0 +1,27 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * QandA plugin for Craft CMS 3.x
+ *
+ * QandA index.twig
+ *
+ * @author    Kurious Agency
+ * @copyright Copyright (c) 2019 Kurious Agency
+ * @link      https://kurious.agency
+ * @package   QandA
+ * @since     0.0.1
+ */
+#}
+
+{% extends "_layouts/elementindex" %}
+
+{% set title = "Q&As"|t('qanda') %}
+
+{% set elementType = 'kuriousagency\\qanda\\elements\\Question' %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a href="{{ url('qanda/new') }}"
+           class="btn submit add icon">{{ 'New question'|t('qanda') }}</a>
+    </div>
+{% endblock %}
