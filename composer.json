@@ -2,7 +2,7 @@
 	"name": "kuriousagency/qanda",
 	"description": "Question & Answers",
 	"type": "craft-plugin",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"keywords": [
 		"craft",
 		"cms",
