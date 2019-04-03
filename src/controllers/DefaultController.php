@@ -90,11 +90,11 @@ class DefaultController extends Controller
 		$model->customerId = $request->getBodyParam('customerId', $model->customerId);
 		$model->productId = $request->getBodyParam('productId', $model->productId);
 
-		if (!$model->customerId) {
+		if (!$model->customerId and $request->isSiteRequest) {
 			if ($user = Craft::$app->getUser()->getIdentity()) {
 				$customer = Commerce::getInstance()->getCustomers()->getCustomerByUserId($user->id);
 				$model->customerId = $customer->id;
-			} else if ($user = Craft::$app->getUsers()->getUserByUsernameOrEmail($review->email)) {
+			} else if ($user = Craft::$app->getUsers()->getUserByUsernameOrEmail($model->email)) {
 				$customer = Commerce::getInstance()->getCustomers()->getCustomerByUserId($user->id);
 				$model->customerId = $customer->id;
 			}
