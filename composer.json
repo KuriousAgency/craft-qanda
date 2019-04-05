@@ -1,38 +1,40 @@
 {
-    "name": "kuriousagency/qanda",
-    "description": "Question & Answers",
-    "type": "craft-plugin",
-    "version": "0.0.3",
-    "keywords": [
-        "craft",
-        "cms",
-        "craftcms",
-        "craft-plugin",
-        "qanda"
-    ],
-    "support": {
-        "docs": "https://github.com/KuriousAgency/qanda/blob/master/README.md",
-        "issues": "https://github.com/KuriousAgency/qanda/issues"
-    },
-    "license": "MIT",
-    "authors": [{
-        "name": "Kurious Agency",
-        "homepage": "https://kurious.agency"
-    }],
-    "require": {
-        "craftcms/cms": "^3.0.0-RC1"
-    },
-    "autoload": {
-        "psr-4": {
-            "kuriousagency\\qanda\\": "src/"
-        }
-    },
-    "extra": {
-        "name": "QandA",
-        "handle": "qanda",
-        "hasCpSettings": false,
-        "hasCpSection": true,
-        "changelogUrl": "https://raw.githubusercontent.com/KuriousAgency/qanda/master/CHANGELOG.md",
-        "class": "kuriousagency\\qanda\\QandA"
-    }
+	"name": "kuriousagency/qanda",
+	"description": "Question & Answers",
+	"type": "craft-plugin",
+	"version": "0.0.4",
+	"keywords": [
+		"craft",
+		"cms",
+		"craftcms",
+		"craft-plugin",
+		"qanda"
+	],
+	"support": {
+		"docs": "https://github.com/KuriousAgency/qanda/blob/master/README.md",
+		"issues": "https://github.com/KuriousAgency/qanda/issues"
+	},
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Kurious Agency",
+			"homepage": "https://kurious.agency"
+		}
+	],
+	"require": {
+		"craftcms/cms": "^3.0.0-RC1"
+	},
+	"autoload": {
+		"psr-4": {
+			"kuriousagency\\qanda\\": "src/"
+		}
+	},
+	"extra": {
+		"name": "QandA",
+		"handle": "qanda",
+		"hasCpSettings": false,
+		"hasCpSection": true,
+		"changelogUrl": "https://raw.githubusercontent.com/KuriousAgency/qanda/master/CHANGELOG.md",
+		"class": "kuriousagency\\qanda\\QandA"
+	}
 }
