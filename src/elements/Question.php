@@ -133,17 +133,20 @@ class Question extends Element
         $sources = [
 			'*' => [
                 'key' => '*',
-                'label' => Craft::t('qanda', 'All Questions'),
+				'label' => Craft::t('qanda', 'All Questions'),
+				'defaultSort' => ['dateOrdered', 'desc'],
 			],
 			'Product' => [
                 'key' => 'product',
 				'label' => Craft::t('qanda', 'Product Questions'),
 				'criteria' => ['productId' => ':notempty:'],
+				'defaultSort' => ['dateOrdered', 'desc'],
 			],
 			'General' => [
                 'key' => 'general',
 				'label' => Craft::t('qanda', 'General Questions'),
 				'criteria' => ['productId' => ':empty:'],
+				'defaultSort' => ['dateOrdered', 'desc'],
             ]
 		];
 
@@ -170,11 +173,11 @@ class Question extends Element
 	protected static function defineSortOptions(): array
 	{
 		return [
+			'dateCreated' => Craft::t('qanda', 'Date Created'),
 			'email' => Craft::t('qanda', 'Email'),
 			//'product' => ['label' => Craft::t('qanda', 'Product'), 'attribute' => 'product.title'],
 			'firstName' => Craft::t('qanda', 'Firstname'),
 			'lastName' => Craft::t('qanda', 'Lastname'),
-			'dateCreated' => Craft::t('qanda', 'Date Created'),
 		];
 	}
 
