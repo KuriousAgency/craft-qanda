@@ -134,19 +134,19 @@ class Question extends Element
 			'*' => [
                 'key' => '*',
 				'label' => Craft::t('qanda', 'All Questions'),
-				'defaultSort' => ['dateOrdered', 'desc'],
+				'defaultSort' => ['dateCreated', 'desc'],
 			],
 			'Product' => [
                 'key' => 'product',
 				'label' => Craft::t('qanda', 'Product Questions'),
 				'criteria' => ['productId' => ':notempty:'],
-				'defaultSort' => ['dateOrdered', 'desc'],
+				'defaultSort' => ['dateCreated', 'desc'],
 			],
 			'General' => [
                 'key' => 'general',
 				'label' => Craft::t('qanda', 'General Questions'),
 				'criteria' => ['productId' => ':empty:'],
-				'defaultSort' => ['dateOrdered', 'desc'],
+				'defaultSort' => ['dateCreated', 'desc'],
             ]
 		];
 
