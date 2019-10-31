@@ -67,6 +67,11 @@ class Question extends Element
     public static function displayName(): string
     {
         return Craft::t('qanda', 'Q&A');
+	}
+	
+	public function __toString()
+    {
+        return substr($this->question, 0, 25) . (strlen($this->question) > 25 ? '...' : '');
     }
 
     /**
@@ -175,7 +180,7 @@ class Question extends Element
 		return [
 			'dateCreated' => Craft::t('qanda', 'Date Created'),
 			'email' => Craft::t('qanda', 'Email'),
-			//'product' => ['label' => Craft::t('qanda', 'Product'), 'attribute' => 'product.title'],
+			'answer' => Craft::t('qanda', 'Email'),
 			'firstName' => Craft::t('qanda', 'Firstname'),
 			'lastName' => Craft::t('qanda', 'Lastname'),
 		];
@@ -184,12 +189,12 @@ class Question extends Element
 	protected static function defineTableAttributes(): array
     {
 		return [
-			'id' => ['label' => Craft::t('qanda', 'ID')],
+			'question' => ['label' => Craft::t('qanda', 'Question')],
+			'answer' => ['label' => Craft::t('qanda', 'Answered?')],
+			'product' => ['label' => Craft::t('qanda', 'Product')],
 			'email' => ['label' => Craft::t('qanda', 'Email')],
 			'firstName' => ['label' => Craft::t('qanda', 'Firstname')],
 			'lastName' => ['label' => Craft::t('qanda', 'Lastname')],
-			'email' => ['label' => Craft::t('qanda', 'Email')],
-			'product' => ['label' => Craft::t('qanda', 'Product')],
 			'dateCreated' => ['label' => Craft::t('qanda', 'Date Created')],
 			'dateUpdated' => ['label' => Craft::t('qanda', 'Date Updated')],
 		];
@@ -198,9 +203,10 @@ class Question extends Element
 	protected static function defineDefaultTableAttributes(string $source): array
     {
 		return [
-			'id',
-			'email',
+			'question',
+			'answer',
 			'product',
+			'email',
 			'dateCreated',
 		];
 	}
@@ -213,6 +219,8 @@ class Question extends Element
 			'lastName',
 			'dateCreated',
 			'product',
+			'question',
+			'answer',
 		];
 	}
 
@@ -235,6 +243,10 @@ class Question extends Element
 						return '';
 					}
 					return '<a href="'.$this->product->cpEditUrl.'"><span class="status '.$this->product->status.'"></span>'.$this->product->title.'</a>';
+				}
+			case 'answer':
+				{
+					return $this->answer ? '<span data-icon="check" title="Yes"></span>' : '';
 				}
 			default:
                 {
