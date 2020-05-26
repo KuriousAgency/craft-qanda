@@ -1,137 +1,28 @@
 <?php
-/**
- * QandA plugin for Craft CMS 3.x
- *
- * Question & Answers
- *
- * @link      https://kurious.agency
- * @copyright Copyright (c) 2019 Kurious Agency
- */
-
 namespace kuriousagency\qanda\fields;
 
-use kuriousagency\qanda\QandA;
-use kuriousagency\qanda\assetbundles\questionsfield\QuestionsFieldAsset;
+use kuriousagency\qanda\elements\Question;
 
 use Craft;
-use craft\base\ElementInterface;
-use craft\base\Field;
-use craft\helpers\Db;
-use yii\db\Schema;
-use craft\helpers\Json;
+use craft\fields\BaseRelationField;
 
-/**
- * @author    Kurious Agency
- * @package   QandA
- * @since     0.0.1
- */
-class Questions extends Field
+class Questions extends BaseRelationField
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var string
-     */
-    public $someAttribute = 'Some Default';
-
-    // Static Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public static function displayName(): string
-    {
-        return Craft::t('qand-a', 'Questions');
-    }
-
     // Public Methods
     // =========================================================================
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
+    public static function displayName(): string
     {
-        $rules = parent::rules();
-        $rules = array_merge($rules, [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
-        ]);
-        return $rules;
+        return Craft::t('qanda', 'Q and A');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getContentColumnType(): string
+    protected static function elementType(): string
     {
-        return Schema::TYPE_STRING;
+        return Question::class;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function normalizeValue($value, ElementInterface $element = null)
+    public static function defaultSelectionLabel(): string
     {
-        return $value;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function serializeValue($value, ElementInterface $element = null)
-    {
-        return parent::serializeValue($value, $element);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSettingsHtml()
-    {
-        // Render the settings template
-        return Craft::$app->getView()->renderTemplate(
-            'qand-a/_components/fields/Questions_settings',
-            [
-                'field' => $this,
-            ]
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getInputHtml($value, ElementInterface $element = null): string
-    {
-        // Register our asset bundle
-        Craft::$app->getView()->registerAssetBundle(QuestionsFieldAsset::class);
-
-        // Get our id and namespace
-        $id = Craft::$app->getView()->formatInputId($this->handle);
-        $namespacedId = Craft::$app->getView()->namespaceInputId($id);
-
-        // Variables to pass down to our field JavaScript to let it namespace properly
-        $jsonVars = [
-            'id' => $id,
-            'name' => $this->handle,
-            'namespace' => $namespacedId,
-            'prefix' => Craft::$app->getView()->namespaceInputId(''),
-            ];
-        $jsonVars = Json::encode($jsonVars);
-        Craft::$app->getView()->registerJs("$('#{$namespacedId}-field').QandAQuestions(" . $jsonVars . ");");
-
-        // Render the input template
-        return Craft::$app->getView()->renderTemplate(
-            'qand-a/_components/fields/Questions_input',
-            [
-                'name' => $this->handle,
-                'value' => $value,
-                'field' => $this,
-                'id' => $id,
-                'namespacedId' => $namespacedId,
-            ]
-        );
+        return Craft::t('qanda', 'Select a Q and A');
     }
 }

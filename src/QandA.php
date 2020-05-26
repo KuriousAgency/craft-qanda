@@ -14,7 +14,7 @@ use kuriousagency\qanda\services\QandAService as Service;
 use kuriousagency\qanda\variables\QandAVariable;
 //use kuriousagency\qanda\twigextensions\QandATwigExtension;
 use kuriousagency\qanda\elements\Question;
-//use kuriousagency\qanda\fields\Questions as QuestionsField;
+use kuriousagency\qanda\fields\Questions as QuestionsField;
 //use kuriousagency\qanda\widgets\QandAWidget as QandAWidgetWidget;
 
 use Craft;
@@ -95,14 +95,14 @@ class QandA extends Plugin
             }
         );
 
-        /*Event::on(
+        Event::on(
             Fields::class,
             Fields::EVENT_REGISTER_FIELD_TYPES,
             function (RegisterComponentTypesEvent $event) {
                 $event->types[] = QuestionsField::class;
             }
         );
-
+        /*
         Event::on(
             Dashboard::class,
             Dashboard::EVENT_REGISTER_WIDGET_TYPES,
