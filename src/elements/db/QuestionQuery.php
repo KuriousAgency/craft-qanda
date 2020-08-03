@@ -38,7 +38,7 @@ class QuestionQuery extends ElementQuery
 
 	public $customerId;
 	
-	public $productId;
+	public $relatedIds;
 
 	public $email;
 
@@ -92,15 +92,15 @@ class QuestionQuery extends ElementQuery
 		return $this;
 	}
 
-	public function productId($value = null)
-	{
-		$this->productId = $value;
-		return $this;
-	}
-
 	public function email($value = null)
 	{
 		$this->email = $value;
+		return $this;
+	}
+
+	public function relatedIds($value = null)
+	{
+		$this->relatedIds = $value;
 		return $this;
 	}
 
@@ -136,16 +136,26 @@ class QuestionQuery extends ElementQuery
         return $this;
 	}
 	
-	public function product($value)
+	public function relatedElements($value)
 	{
-		if ($value instanceof Product) {
-			$product = Commerce::getInstance()->getProducts()->getProductById($value->id);
-			$this->productId = $product->id ?? null;
+		if (is_array($value)) {
+			foreach ($value as $v) {
+				if ($v instanceof Element) {
+					$element = Element::find()->id($value->id)->one();
+					$this->relatedIds[] = $element->id ?? null;
+				} else if ($value !== null) {
+					$element = Element::find()->id($value->id)->one();
+					$this->relatedIds[] = $element->id ?? null;
+				}
+			}
+		} else if ($v instanceof Element) {
+			$element = Element::find()->id($value->id)->one();
+			$this->relatedIds[] = $element->id ?? null;
 		} else if ($value !== null) {
-			$product = Commerce::getInstance()->getProducts()->getProductById($value);
-			$this->productId = $product->id ?? null;
+			$element = Element::find()->id($value->id)->one();
+			$this->relatedIds[] = $element->id ?? null;
 		} else {
-			$this->productId = null;
+			$this->relatedIds = null;
 		}
 
 		return $this;
@@ -170,7 +180,6 @@ class QuestionQuery extends ElementQuery
 			'qanda_questions.question',
 			'qanda_questions.answer',
 			'qanda_questions.customerId',
-			'qanda_questions.productId',
 			'qanda_questions.email',
 			'qanda_questions.firstName',
 			'qanda_questions.lastName',
@@ -178,6 +187,7 @@ class QuestionQuery extends ElementQuery
 			'qanda_questions.dateCreated',
 			'qanda_questions.dateUpdated',
         ]);
+
 
 		if ($this->email) {
             $this->subQuery->andWhere(Db::parseParam('qanda_questions.email', $this->email));
@@ -207,10 +217,26 @@ class QuestionQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('qanda_questions.customerId', $this->customerId));
 		}
 		
-		if ($this->productId) {
-            $this->subQuery->andWhere(Db::parseParam('qanda_questions.productId', $this->productId));
+		if ($this->relatedIds) {
+
+			$query = (new Query())
+				->select('qanda_questions.id')
+				->distinct()
+				->from('{{%qanda_questions}},{{%relations}}')
+				->where('qanda_questions.id = relations.sourceId')
+				->all();
+			if ($this->relatedIds == ':empty:') {
+				$param = Db::parseParam('qanda_questions.id', array_column($query , 'id'), 'not');
+			} else {
+				$param = Db::parseParam('qanda_questions.id', array_column($query , 'id'));
+			}
+			$this->subQuery->andWhere($param);
+
+			// Craft::dd($this->subQuery->rawSql);
 		}
 		
+		// Craft::dd($this->subQuery->rawSql);
+
 		return parent::beforePrepare();
     }
 

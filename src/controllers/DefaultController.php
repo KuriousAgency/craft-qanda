@@ -14,6 +14,7 @@ use kuriousagency\qanda\QandA;
 use kuriousagency\qanda\elements\Question;
 
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\elements\Product;
 
 use Craft;
 use craft\web\Controller;
@@ -45,6 +46,7 @@ class DefaultController extends Controller
 
     public function actionIndex(): Response
 	{
+		// Craft::dd(Question::find()->relatedIds(':notempty:')->one());
 		return $this->renderTemplate('qanda/index');
 	}
 
@@ -62,6 +64,23 @@ class DefaultController extends Controller
 		return $this->renderTemplate('qanda/edit', [
 			'question' => $question,
 		]);
+	}
+
+	public function actionSettings(): Response
+	{
+		return $this->renderTemplate('qanda/settings');
+	}
+
+	public function actionSaveSettings()
+	{
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+		$fieldLayout->type = Question::class;
+		Craft::$app->getFields()->saveLayout($fieldLayout);
+		$questions = Question::find()->anyStatus()->all();
+		foreach ($questions as $question) {
+			$question->fieldLayoutId = $fieldLayout->id;
+			Craft::$app->getElements()->saveElement($question);
+		}
 	}
 	
 	public function actionSave()
@@ -88,7 +107,7 @@ class DefaultController extends Controller
 		$model->lastName = $request->getBodyParam('lastName', $model->lastName);
 		$model->enabled = $request->getBodyParam('enabled', $model->enabled);
 		$model->customerId = $request->getBodyParam('customerId', $model->customerId);
-		$model->productId = $request->getBodyParam('productId', $model->productId);
+		$model->setFieldValuesFromRequest('fields');	
 
 		if (!$model->customerId && $request->isSiteRequest) {
 			if ($user = Craft::$app->getUser()->getIdentity()) {
@@ -100,11 +119,7 @@ class DefaultController extends Controller
 			}
 		}
 
-		if (is_array($model->productId)) {
-			$model->productId = $model->productId[0];
-		}
-
-		//Craft::dd($model);
+		
 
 		if (!Craft::$app->getElements()->saveElement($model)) {
 			Craft::$app->getSession()->setError(Craft::t('qanda', 'Couldn’t save question.'));
@@ -116,6 +131,7 @@ class DefaultController extends Controller
 			
 			return null;
 		}
+		
 
 		Craft::$app->getSession()->setNotice(Craft::t('qanda', 'Question saved.'));
 

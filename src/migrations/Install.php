@@ -89,8 +89,8 @@ class Install extends Migration
 					'firstName' => $this->string(255),
 					'lastName' => $this->string(255),
 					'enabled' => $this->boolean()->notNull()->defaultValue(false),
-					'customerId' => $this->integer(),
-					'productId' => $this->integer(),
+                    'customerId' => $this->integer(),
+                    'hasRelation' => $this->boolean()
                 ]
             );
         }
@@ -103,8 +103,9 @@ class Install extends Migration
      */
     protected function createIndexes()
     {
-        $this->createIndex(null, '{{%qanda_questions}}', 'productId', false);
-		$this->createIndex(null, '{{%qanda_questions}}', 'customerId', false);
+        $this->createIndex(null, '{{%qanda_questions}}', 'customerId', false);
+        $this->createIndex(null, '{{%qanda_relations}}', 'questionId', false);
+        $this->createIndex(null, '{{%qanda_relations}}', 'elementId', false);
 
         // Additional commands depending on the db driver
         switch ($this->driver) {
@@ -121,8 +122,9 @@ class Install extends Migration
     protected function addForeignKeys()
     {
         $this->addForeignKey(null, '{{%qanda_questions}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
-		$this->addForeignKey(null, '{{%qanda_questions}}', ['productId'], '{{%commerce_products}}', ['id'], 'CASCADE');
-		$this->addForeignKey(null, '{{%qanda_questions}}', ['customerId'], '{{%commerce_customers}}', ['id']);
+        $this->addForeignKey(null, '{{%qanda_questions}}', ['customerId'], '{{%commerce_customers}}', ['id']);
+        $this->addForeignKey(null, '{{%qanda_relations}}', ['questionId'], '{{%qanda_questions}}',['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%qanda_relations}}', ['elementId'], '{{%elements}}', ['id'], 'CASCADE');
     }
 
     /**

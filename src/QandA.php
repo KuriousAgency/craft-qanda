@@ -83,7 +83,9 @@ class QandA extends Plugin
             function (RegisterUrlRulesEvent $event) {
                 $event->rules['qanda'] = 'qanda/default/index';
 				$event->rules['qanda/new'] = 'qanda/default/edit';
-				$event->rules['qanda/<id:\d+>'] = 'qanda/default/edit';
+                $event->rules['qanda/<id:\d+>'] = 'qanda/default/edit';
+                $event->rules['qanda/settings'] = 'qanda/default/settings';
+
             }
         );
 
@@ -140,7 +142,26 @@ class QandA extends Plugin
         );
     }
 
-    // Protected Methods
-    // =========================================================================
+    public function getCpNavItem(): array
+    {
+        $user = Craft::$app->getUser();
+        $admin = $user->isAdmin;
+        $item = parent::getCpNavItem();
+        if ($admin){
+            $item['subnav']['settings'] = ['label' => 'Settings', 'url' => 'qanda/settings/'];
+        }
+        return $item;
+    }
+
+    /**
+     * Returns the rendered settings HTML, which will be inserted into the content
+     * block on the settings page.
+     *
+     * @return string The rendered settings HTML
+     */
+    public function getSettingsResponse()
+    {   
+        return Craft::$app->controller->redirect('qanda/settings');
+    }
 
 }

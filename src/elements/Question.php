@@ -26,8 +26,10 @@ use craft\commerce\elements\Product;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
+use craft\db\Query;
 
 /**
  * @author    Kurious Agency
@@ -51,8 +53,8 @@ class Question extends Element
 	public $question;
 	public $answer;
 	public $customerId;
-	public $productId;
 	public $enabled;
+	// public $relatedIds;
 
 	private $_email;
 	private $_firstName;
@@ -79,7 +81,7 @@ class Question extends Element
      */
     public static function hasContent(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -141,19 +143,21 @@ class Question extends Element
 				'label' => Craft::t('qanda', 'All Questions'),
 				'defaultSort' => ['dateCreated', 'desc'],
 			],
-			'Product' => [
-                'key' => 'product',
-				'label' => Craft::t('qanda', 'Product Questions'),
-				'criteria' => ['productId' => ':notempty:'],
+			'Related' => [
+                'key' => 'related',
+				'label' => Craft::t('qanda', 'Element Specific Questions'),
+				'criteria' => ['relatedIds' => ':notempty:'],
 				'defaultSort' => ['dateCreated', 'desc'],
 			],
 			'General' => [
                 'key' => 'general',
 				'label' => Craft::t('qanda', 'General Questions'),
-				'criteria' => ['productId' => ':empty:'],
+				'criteria' => ['relatedIds' => ':empty:'],
 				'defaultSort' => ['dateCreated', 'desc'],
             ]
 		];
+
+
 
         return $sources;
 	}
@@ -191,7 +195,7 @@ class Question extends Element
 		return [
 			'question' => ['label' => Craft::t('qanda', 'Question')],
 			'answer' => ['label' => Craft::t('qanda', 'Answered?')],
-			'product' => ['label' => Craft::t('qanda', 'Product')],
+			'relatedIds' => ['label' => Craft::t('qanda', 'Related To')],
 			'email' => ['label' => Craft::t('qanda', 'Email')],
 			'firstName' => ['label' => Craft::t('qanda', 'Firstname')],
 			'lastName' => ['label' => Craft::t('qanda', 'Lastname')],
@@ -205,7 +209,7 @@ class Question extends Element
 		return [
 			'question',
 			'answer',
-			'product',
+			'relatedIds',
 			'email',
 			'dateCreated',
 		];
@@ -218,7 +222,7 @@ class Question extends Element
 			'firstName',
 			'lastName',
 			'dateCreated',
-			'product',
+			'relatedIds',
 			'question',
 			'answer',
 		];
@@ -227,8 +231,8 @@ class Question extends Element
 	public function getSearchKeywords(string $attribute): string
     {
         switch ($attribute) {
-            case 'product':
-                return $this->product->title ?? '';
+            case 'relatedIds':
+                return StringHelper::toString(array_column($this->getRelatedElements(),'title'),', ') ?? '';
             default:
                 return parent::getSearchKeywords($attribute);
         }
@@ -237,12 +241,18 @@ class Question extends Element
 	protected function tableAttributeHtml(string $attribute): string
     {
 		switch ($attribute) {
-			case 'product':
+			case 'relatedIds':
 				{
-					if (!$this->productId) {
-						return '';
+					$string = '';
+					$i = 1;
+					foreach ($this->getRelatedElements() as $element) {
+						$string .= '<a href="'.$element->cpEditUrl.'"><span class="status '.$element->status.'"></span>'.$element->title.'</a>';
+						if ($i <= count($this->getRelatedElements())) {
+							$string .= '<br>';
+						}
 					}
-					return '<a href="'.$this->product->cpEditUrl.'"><span class="status '.$this->product->status.'"></span>'.$this->product->title.'</a>';
+					
+					return $string;
 				}
 			case 'answer':
 				{
@@ -256,7 +266,17 @@ class Question extends Element
 	}
 
     // Public Methods
-    // =========================================================================
+	// =========================================================================
+	
+	
+	/**
+     * @inheritdoc
+     */
+    public function getFieldLayout()
+    {
+        
+        return Craft::$app->getFields()->getLayoutByType(Question::class);
+    }
 
     /**
      * @inheritdoc
@@ -264,7 +284,7 @@ class Question extends Element
     public function rules()
     {
         return [
-			[['customerId', 'productId'], 'number', 'integerOnly' => true],
+			[['customerId'], 'number', 'integerOnly' => true],
 			[['enabled'], 'boolean'],
 			['enabled', 'default', 'value' => false],
 			[['question', 'email'], 'required'],
@@ -282,8 +302,8 @@ class Question extends Element
 	public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('qanda/' . $this->id);
-    }
-
+	}
+	
     public function getCustomer()
 	{
 		if (!$this->customerId) {
@@ -292,12 +312,14 @@ class Question extends Element
 		return Commerce::getInstance()->getCustomers()->getCustomerById($this->customerId);
 	}
 
-	public function getProduct()
+	public function getRelatedElements()
 	{
-		if (!$this->productId) {
-			return null;
+		$query = (new Query())->select(['sourceId','targetId'])->from('{{%relations}}')->where(['sourceId' => $this->id])->all();
+		$elements = [];
+		foreach ($query as $row) {
+			$elements[] = Craft::$app->getElements()->getElementById($row['targetId']);
 		}
-		return Commerce::getInstance()->getProducts()->getProductById($this->productId);
+		return $elements;
 	}
 
 	public function getEmail(): string
@@ -400,12 +422,10 @@ class Question extends Element
 		$record->question = $this->question;
 		$record->answer = $this->answer;
 		$record->customerId = $this->customerId;
-		$record->productId = $this->productId;
 		$record->email = $this->getEmail();
 		$record->firstName = $this->getFirstName();
 		$record->lastName = $this->getLastName();
 		$record->enabled = $this->enabled;
-
 		$record->save();
 
 		$this->id = $record->id;

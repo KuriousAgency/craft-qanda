@@ -1,0 +1,35 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * EmailEditor plugin for Craft CMS 3.x
+ *
+ * EmailEditor _edit-settings.twig
+ *
+ * @author    Kurious Agency
+ * @copyright Copyright (c) 2018 Kurious Agency
+ * @link      kurious.agency
+ * @package   EmailEditor
+ * @since     1.0.0
+ */
+#}
+{% extends '_layouts/cp' %}
+
+{% set title = "Edit Qanda Settings" %}
+{# {% set crumbs = [
+    { label: "Settings", url: url('email-editor/settings') }, 
+] %} #}
+
+{% set fullPageForm = true %}
+
+{% block content %}
+ {% import "_includes/forms" as forms %}
+    {{ csrfInput() }}
+    {{ redirectInput('qanda/settings') }}
+    {{ actionInput('qanda/default/save-settings') }}
+
+
+{% include "_includes/fieldlayoutdesigner" with {
+        fieldLayout: craft.app.fields.getLayoutByType('kuriousagency\\qanda\\elements\\Question')
+    } only %}
+
+{% endblock %}

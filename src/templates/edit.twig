@@ -71,6 +71,9 @@
 		rows: 5,
 		errors: question.getErrors('answer'),
 	}) }}
+
+	
+
 	
 {% endblock %}
 
@@ -100,15 +103,13 @@
         on: question.enabled
     }) }}
 
-	{{ forms.elementSelectField({
-        id: 'productId',
-        label: 'Product',
-        name: 'productId',
-        elementType: 'craft\\commerce\\elements\\Product',
-        elements: [question.product] ?? null,
-        limit: 1,
-        instructions: 'Choose a product'
-    }) }}
+	{% include "_includes/fields" with {
+		fields:  question.getFieldLayout().getTabs()|first.getFields(),
+		element: question,
+		static:  (static is defined ? static : false)
+	} only %}
+
+	
 
 	{{ forms.textField({
 		label: "Email"|t('qanda'),

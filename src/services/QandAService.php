@@ -34,5 +34,5 @@ class QandAService extends Component
 		$question = Craft::$app->getElements()->getElementById($id, Question::class, $siteId);
 
 		return $question;
-	}
+    }
 }
