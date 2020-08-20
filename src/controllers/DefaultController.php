@@ -68,7 +68,14 @@ class DefaultController extends Controller
 
 	public function actionSettings(): Response
 	{
-		return $this->renderTemplate('qanda/settings');
+	
+		$settings = QandA::$plugin->getSettings();
+
+		// Craft::dd($settings);
+
+		return $this->renderTemplate('qanda/settings',[
+			'settings' => $settings
+		]);
 	}
 
 	public function actionSaveSettings()
@@ -81,6 +88,26 @@ class DefaultController extends Controller
 			$question->fieldLayoutId = $fieldLayout->id;
 			Craft::$app->getElements()->saveElement($question);
 		}
+
+		// save plugin settings
+		$plugin = Craft::$app->getPlugins()->getPlugin('qanda');
+		$settings = Craft::$app->getRequest()->getBodyParam('settings', []);
+		
+		if (!Craft::$app->getPlugins()->savePluginSettings($plugin, $settings)) {
+            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save plugin settings.'));
+
+            // Send the plugin back to the template
+            Craft::$app->getUrlManager()->setRouteParams([
+                'plugin' => $plugin
+            ]);
+
+            return null;
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('app', 'Plugin settings saved.'));
+
+        return $this->redirectToPostedUrl();
+
 	}
 	
 	public function actionSave()
@@ -88,6 +115,7 @@ class DefaultController extends Controller
 		$this->requirePostRequest();
 
 		$request = Craft::$app->getRequest();
+		$sendEmail = false;
 		
 		$id = $request->getBodyParam('id');
 		if ($id) {
@@ -100,8 +128,14 @@ class DefaultController extends Controller
 			$model = new Question();
 		}
 
+		$answer = $request->getBodyParam('answer');
+
+		if($answer && ($model->answer != $answer)) {
+			$sendEmail = true;
+		}
+
 		$model->question = $request->getBodyParam('question', $model->question);
-		$model->answer = $request->getBodyParam('answer', $model->answer);
+		$model->answer = $answer ? $answer : $model->answer;
 		$model->email = $request->getBodyParam('email', $model->email);
 		$model->firstName = $request->getBodyParam('firstName', $model->firstName);
 		$model->lastName = $request->getBodyParam('lastName', $model->lastName);
@@ -119,8 +153,6 @@ class DefaultController extends Controller
 			}
 		}
 
-		
-
 		if (!Craft::$app->getElements()->saveElement($model)) {
 			Craft::$app->getSession()->setError(Craft::t('qanda', 'Couldn’t save question.'));
 			//Craft::dd($model->getErrors());
@@ -131,7 +163,10 @@ class DefaultController extends Controller
 			
 			return null;
 		}
-		
+
+		if($sendEmail) {
+			QandA::$plugin->service->sendEmail($model);
+		}		
 
 		Craft::$app->getSession()->setNotice(Craft::t('qanda', 'Question saved.'));
 

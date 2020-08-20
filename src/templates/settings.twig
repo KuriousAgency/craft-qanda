@@ -27,9 +27,22 @@
     {{ redirectInput('qanda/settings') }}
     {{ actionInput('qanda/default/save-settings') }}
 
+    {# {% set tabs = {
+        0: {'label':'Settings'|t('qanda'),'url':'#settings'},
+        1: {'label':'Field Layout'|t('qanda'),'url':'#fieldLayput'},
+    } %} #}
 
-{% include "_includes/fieldlayoutdesigner" with {
+    {{ forms.textField({
+        label: 'Email Template Path',
+        instructions: 'Please enter your email template path',
+        id: 'templatePath',
+        name: 'settings[templatePath]',
+        value: settings['templatePath']})
+    }}
+
+    {% include "_includes/fieldlayoutdesigner" with {
         fieldLayout: craft.app.fields.getLayoutByType('kuriousagency\\qanda\\elements\\Question')
     } only %}
+
 
 {% endblock %}

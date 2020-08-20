@@ -52,6 +52,8 @@ class QuestionQuery extends ElementQuery
 
 	public $dateUpdated;
 
+	public $hasRelation;
+
 
     // Public Methods
     // =========================================================================
@@ -135,34 +137,6 @@ class QuestionQuery extends ElementQuery
 
         return $this;
 	}
-	
-	public function relatedElements($value)
-	{
-		if (is_array($value)) {
-			foreach ($value as $v) {
-				if ($v instanceof Element) {
-					$element = Element::find()->id($value->id)->one();
-					$this->relatedIds[] = $element->id ?? null;
-				} else if ($value !== null) {
-					$element = Element::find()->id($value->id)->one();
-					$this->relatedIds[] = $element->id ?? null;
-				}
-			}
-		} else if ($v instanceof Element) {
-			$element = Element::find()->id($value->id)->one();
-			$this->relatedIds[] = $element->id ?? null;
-		} else if ($value !== null) {
-			$element = Element::find()->id($value->id)->one();
-			$this->relatedIds[] = $element->id ?? null;
-		} else {
-			$this->relatedIds = null;
-		}
-
-		return $this;
-	}
-
-
-
 
     // Protected Methods
     // =========================================================================
@@ -175,6 +149,7 @@ class QuestionQuery extends ElementQuery
 
         $this->joinElementTable('qanda_questions');
 
+		$this->query->distinct();
         $this->query->select([
 			'qanda_questions.id',
 			'qanda_questions.question',
@@ -216,26 +191,16 @@ class QuestionQuery extends ElementQuery
 		if ($this->customerId) {
             $this->subQuery->andWhere(Db::parseParam('qanda_questions.customerId', $this->customerId));
 		}
-		
-		if ($this->relatedIds) {
 
-			$query = (new Query())
-				->select('qanda_questions.id')
-				->distinct()
-				->from('{{%qanda_questions}},{{%relations}}')
-				->where('qanda_questions.id = relations.sourceId')
-				->all();
-			if ($this->relatedIds == ':empty:') {
-				$param = Db::parseParam('qanda_questions.id', array_column($query , 'id'), 'not');
-			} else {
-				$param = Db::parseParam('qanda_questions.id', array_column($query , 'id'));
+		if($this->hasRelation) {
+			$this->subQuery->leftJoin('{{%relations}} relations', '[[qanda_questions.id]] = [[relations.sourceId]]');
+
+			if($this->hasRelation == 'false') {
+				$this->subQuery->andWhere(['[[relations.sourceId]]' => null]);
 			}
-			$this->subQuery->andWhere($param);
-
-			// Craft::dd($this->subQuery->rawSql);
 		}
-		
-		// Craft::dd($this->subQuery->rawSql);
+
+	
 
 		return parent::beforePrepare();
     }

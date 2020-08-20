@@ -54,7 +54,7 @@ class Question extends Element
 	public $answer;
 	public $customerId;
 	public $enabled;
-	// public $relatedIds;
+	public $hasRelation;
 
 	private $_email;
 	private $_firstName;
@@ -146,13 +146,13 @@ class Question extends Element
 			'Related' => [
                 'key' => 'related',
 				'label' => Craft::t('qanda', 'Element Specific Questions'),
-				'criteria' => ['relatedIds' => ':notempty:'],
+				'criteria' => ['hasRelation' => 'true'],
 				'defaultSort' => ['dateCreated', 'desc'],
 			],
 			'General' => [
                 'key' => 'general',
 				'label' => Craft::t('qanda', 'General Questions'),
-				'criteria' => ['relatedIds' => ':empty:'],
+				'criteria' => ['hasRelation' => 'false'],
 				'defaultSort' => ['dateCreated', 'desc'],
             ]
 		];
@@ -195,7 +195,7 @@ class Question extends Element
 		return [
 			'question' => ['label' => Craft::t('qanda', 'Question')],
 			'answer' => ['label' => Craft::t('qanda', 'Answered?')],
-			'relatedIds' => ['label' => Craft::t('qanda', 'Related To')],
+			'relations' => ['label' => Craft::t('qanda', 'Related To')],
 			'email' => ['label' => Craft::t('qanda', 'Email')],
 			'firstName' => ['label' => Craft::t('qanda', 'Firstname')],
 			'lastName' => ['label' => Craft::t('qanda', 'Lastname')],
@@ -209,7 +209,7 @@ class Question extends Element
 		return [
 			'question',
 			'answer',
-			'relatedIds',
+			'relations',
 			'email',
 			'dateCreated',
 		];
@@ -222,7 +222,7 @@ class Question extends Element
 			'firstName',
 			'lastName',
 			'dateCreated',
-			'relatedIds',
+			'relations',
 			'question',
 			'answer',
 		];
@@ -231,7 +231,7 @@ class Question extends Element
 	public function getSearchKeywords(string $attribute): string
     {
         switch ($attribute) {
-            case 'relatedIds':
+            case 'relations':
                 return StringHelper::toString(array_column($this->getRelatedElements(),'title'),', ') ?? '';
             default:
                 return parent::getSearchKeywords($attribute);
@@ -241,7 +241,7 @@ class Question extends Element
 	protected function tableAttributeHtml(string $attribute): string
     {
 		switch ($attribute) {
-			case 'relatedIds':
+			case 'relations':
 				{
 					$string = '';
 					$i = 1;

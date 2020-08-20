@@ -16,6 +16,7 @@ use kuriousagency\qanda\variables\QandAVariable;
 use kuriousagency\qanda\elements\Question;
 use kuriousagency\qanda\fields\Questions as QuestionsField;
 //use kuriousagency\qanda\widgets\QandAWidget as QandAWidgetWidget;
+use kuriousagency\qanda\models\Settings;
 
 use Craft;
 use craft\base\Plugin;
@@ -151,6 +152,14 @@ class QandA extends Plugin
             $item['subnav']['settings'] = ['label' => 'Settings', 'url' => 'qanda/settings/'];
         }
         return $item;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function createSettingsModel()
+    {
+        return new Settings();
     }
 
     /**

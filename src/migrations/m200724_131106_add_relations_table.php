@@ -12,56 +12,44 @@ use craft\db\Query;
 /**
  * m200724_131105_add_relations_table migration.
  */
-class m200724_131105_add_relations_table extends Migration
+class m200724_131106_add_relations_table extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp()
     {
+        
+        $fieldService = Craft::$app->getFields();
+        
         $fieldQuery = (new Query())
             ->select(['id'])
             ->from('{{%fields}}')
             ->where(['handle' => 'product'])
             ->one();
-        $field = Craft::$app->getFields()->getFieldById($fieldQuery['id']);
 
-        $layout = Craft::$app->getFields()->assembleLayout(['Relations' => [$field->id]],[]);
+        $field = $fieldService->getFieldById($fieldQuery['id']);
+
+        $layout = $fieldService->assembleLayout(['Relations' => [$field->id]],[]);
         $layout->type = Question::class;
-        Craft::$app->getFields()->saveLayout($layout);
+
+        if(!$fieldService->saveLayout($layout)) {
+            echo "Couldn't save q and a layout.\n";
+			return false;
+        }
 
         $questionQuery = (new Query())
             ->select(['id','productId'])
             ->from('{{%qanda_questions}}')
             ->all();
-
-        
-        // $this->dropForeignKey(
-        //     $this->db->getForeignKeyName(
-        //         '{{%qanda_questions}}',
-        //         'productId',
-        //         false
-        //     ),
-        //     '{{%qanda_questions}}'
-        // );  
-        // $this->dropIndex(
-        //     $this->db->getIndexName(
-        //         '{{%qanda_questions}}',
-        //         'productId',
-        //         false
-        //     ),
-        //     '{{%qanda_questions}}'
-        // );        
-        // $this->dropColumn('{{%qanda_questions}}','productId');
-        // $this->addColumn('{{%qanda_questions}}','hasRelation',$this->boolean());
         
         foreach ($questionQuery as $row) {
             // $question = QandA::$plugin->service->getQuestionById($row['id']);
             if ($row['productId']) {
-                // Craft::$app->getRelations()->saveRelations($field,$question,[$row['productId']]);
-                // $hasRelation = $row['productId'] ? true : null;
+                echo 'QandA: ' . $row['productId']."\n";
                 $this->insert('{{%relations}}',['fieldId' => $field->id,'sourceId' => $row['id'], 'targetId' => $row['productId']]);
             }
+            $this->insert('{{%content}}',['elementId' => $row['id'],'siteId' => 1]);
         }
         
 
